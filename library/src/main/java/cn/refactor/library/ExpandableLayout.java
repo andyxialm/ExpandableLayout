@@ -52,7 +52,7 @@ public class ExpandableLayout extends LinearLayout {
             TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.ExpandableLayout);
             mDuration = ta.getInt(R.styleable.ExpandableLayout_duration, DEFAULT_DURATION);
             mIsClickToChange = ta.getBoolean(R.styleable.ExpandableLayout_clickToChange, false);
-            mIsExpand = ta.getInteger(R.styleable.ExpandableLayout_init, 1) == 1;
+            mIsExpand = ta.getInteger(R.styleable.ExpandableLayout_init, 2) == 1;
             ta.recycle();
         }
 
@@ -65,6 +65,9 @@ public class ExpandableLayout extends LinearLayout {
     }
 
     public void expand() {
+        if (mIsExpand) {
+            return;
+        }
         executeExpand(this);
 
         if (mSwitcher != null) {
@@ -74,6 +77,9 @@ public class ExpandableLayout extends LinearLayout {
     }
 
     public void collapse() {
+        if (!mIsExpand) {
+            return;
+        }
         executeCollapse(this);
 
         if (mSwitcher != null) {
@@ -83,11 +89,10 @@ public class ExpandableLayout extends LinearLayout {
     }
 
     public void change() {
-        mIsExpand = !mIsExpand;
         if (mIsExpand) {
-            expand();
-        } else {
             collapse();
+        } else {
+            expand();
         }
     }
 
@@ -216,6 +221,7 @@ public class ExpandableLayout extends LinearLayout {
     }
 
     private void executeExpand(final View view) {
+        mIsExpand = !mIsExpand;
         setVisibility(View.VISIBLE);
         int newPos = (getOrientation() == HORIZONTAL ? mWidth : mHeight);
         Animator animator = createAnimator(view, 0, newPos);
@@ -248,6 +254,7 @@ public class ExpandableLayout extends LinearLayout {
     }
 
     private void executeCollapse(final View view) {
+        mIsExpand = !mIsExpand;
         int newPos = (getOrientation() == HORIZONTAL ? mWidth : mHeight);
         ValueAnimator animator = createAnimator(view, newPos, 0);
         animator.addListener(new Animator.AnimatorListener() {
