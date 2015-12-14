@@ -25,7 +25,6 @@ public class MainActivity extends AppCompatActivity {
 
         mSwitcher = findViewById(R.id.switcher);
         mExpandableLayout = (ExpandableLayout) findViewById(R.id.expandableLayout);
-        mExpandableLayout.setExpand(false);
         mExpandableLayout.setSwitcher(mSwitcher);
         mExpandableLayout.setOnChangeListener(new ExpandableLayout.OnChangeListener() {
             @Override

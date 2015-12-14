@@ -7,6 +7,7 @@
 |---|:---|:---:|
 |duration|Integer|Animation duration|
 |clickToChange|boolean|Click child view to dismiss|
+|init|enum(expand/collapse)|Show the effect for first time|
 
 
 

@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <declare-styleable name="ExpandableLayout">
-        <attr name="duration" format="integer"/>
         <attr name="clickToChange" format="boolean"/>
+        <attr name="duration" format="integer"/>
+        <attr name="init" format="enum" >
+            <enum name="expand" value="1" />
+            <enum name="collapse" value="2" />
+        </attr>
     </declare-styleable>
 </resources>

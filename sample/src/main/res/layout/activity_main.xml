@@ -66,6 +66,7 @@
         android:layout_marginLeft="20dp"
         android:background="#bb3a7a"
         android:orientation="vertical"
+        app:init="expand"
         app:clickToChange="true"
         app:duration="500">
 

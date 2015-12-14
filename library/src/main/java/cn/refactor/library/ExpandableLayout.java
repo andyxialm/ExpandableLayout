@@ -52,6 +52,7 @@ public class ExpandableLayout extends LinearLayout {
             TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.ExpandableLayout);
             mDuration = ta.getInt(R.styleable.ExpandableLayout_duration, DEFAULT_DURATION);
             mIsClickToChange = ta.getBoolean(R.styleable.ExpandableLayout_clickToChange, false);
+            mIsExpand = ta.getInteger(R.styleable.ExpandableLayout_init, 1) == 1;
             ta.recycle();
         }
 
@@ -176,7 +177,9 @@ public class ExpandableLayout extends LinearLayout {
     }
 
     private RotateAnimation createRotateAnimation(final View view, int duration) {
-        RotateAnimation animation = new RotateAnimation(mIsExpand ? 0 : -180, mIsExpand ? -180 : 0, view.getPivotX(), view.getPivotY());
+        int pivotX = view.getWidth() >> 1;
+        int pivotY = view.getHeight() >> 1;
+        RotateAnimation animation = new RotateAnimation(mIsExpand ? 0 : -180, mIsExpand ? -180 : 0, pivotX, pivotY);
         animation.setDuration(duration);
         animation.setFillAfter(true);
         return animation;
