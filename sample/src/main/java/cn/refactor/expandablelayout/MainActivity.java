@@ -15,7 +15,6 @@ import cn.refactor.library.ExpandableLayout;
  */
 public class MainActivity extends AppCompatActivity {
 
-    private View mSwitcher;
     private ExpandableLayout mExpandableLayout;
 
     @Override
@@ -23,9 +22,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mSwitcher = findViewById(R.id.switcher);
+        View switcher = findViewById(R.id.switcher);
         mExpandableLayout = (ExpandableLayout) findViewById(R.id.expandableLayout);
-        mExpandableLayout.setSwitcher(mSwitcher);
+        mExpandableLayout.setSwitcher(switcher);
         mExpandableLayout.setOnChangeListener(new ExpandableLayout.OnChangeListener() {
             @Override
             public void onPreExpand() {

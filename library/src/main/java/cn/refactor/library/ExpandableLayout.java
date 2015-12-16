@@ -19,14 +19,18 @@ import android.widget.LinearLayout;
  * 描述 : 可展开/关闭视图
  */
 public class ExpandableLayout extends LinearLayout {
-
     private static final int DEFAULT_DURATION = 300;
+    private int mDuration;
+    private int mWidth;
+    private int mHeight;
+
+    private boolean mIsInited;
+    private boolean mIsExpand;
+    private boolean mIsExecuting;
+    private boolean mIsClickToChange;
 
     private View mSwitcher;
     private OnChangeListener mListener;
-    private int mDuration;
-    private int mWidth, mHeight;
-    private boolean mIsInited, mIsExpand, mIsClickToChange;
 
     public ExpandableLayout(Context context) {
         this(context, null);
@@ -65,7 +69,7 @@ public class ExpandableLayout extends LinearLayout {
     }
 
     public void expand() {
-        if (mIsExpand) {
+        if (mIsExpand || mIsExecuting) {
             return;
         }
         executeExpand(this);
@@ -77,7 +81,7 @@ public class ExpandableLayout extends LinearLayout {
     }
 
     public void collapse() {
-        if (!mIsExpand) {
+        if (!mIsExpand || mIsExecuting) {
             return;
         }
         executeCollapse(this);
@@ -139,6 +143,10 @@ public class ExpandableLayout extends LinearLayout {
         }
     }
 
+    private void setExecuting(boolean isExecuting) {
+        mIsExecuting = isExecuting;
+    }
+
     private int measureChildWidth() {
         int width = 0;
         int cnt = getChildCount();
@@ -158,7 +166,7 @@ public class ExpandableLayout extends LinearLayout {
     }
 
     private int measureDimension(int defaultSize, int measureSpec) {
-        int result = 0;
+        int result;
 
         int specMode = MeasureSpec.getMode(measureSpec);
         int specSize = MeasureSpec.getSize(measureSpec);
@@ -213,7 +221,6 @@ public class ExpandableLayout extends LinearLayout {
                     params.width = getMeasuredWidth();
                     params.height = newPos;
                     view.setLayoutParams(params);
-                    return;
                 }
             }
         });
@@ -228,6 +235,7 @@ public class ExpandableLayout extends LinearLayout {
         animator.addListener(new Animator.AnimatorListener() {
             @Override
             public void onAnimationStart(Animator animation) {
+                setExecuting(true);
                 if (mListener != null) {
                     mListener.onPreExpand();
                 }
@@ -235,6 +243,7 @@ public class ExpandableLayout extends LinearLayout {
 
             @Override
             public void onAnimationEnd(Animator animation) {
+                setExecuting(false);
                 if (mListener != null) {
                     mListener.onExpanded();
                 }
@@ -260,6 +269,7 @@ public class ExpandableLayout extends LinearLayout {
         animator.addListener(new Animator.AnimatorListener() {
             @Override
             public void onAnimationStart(Animator animation) {
+                setExecuting(true);
                 if (mListener != null) {
                     mListener.onPreCollapse();
                 }
@@ -267,6 +277,7 @@ public class ExpandableLayout extends LinearLayout {
 
             @Override
             public void onAnimationEnd(Animator animation) {
+                setExecuting(false);
                 setVisibility(View.GONE);
                 if (mListener != null) {
                     mListener.onCollapsed();
