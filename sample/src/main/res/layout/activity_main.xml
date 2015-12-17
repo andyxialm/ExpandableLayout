@@ -66,8 +66,9 @@
         android:layout_marginRight="20dp"
         android:background="#bb3a7a"
         android:orientation="vertical"
-        app:clickToChange="true"
-        app:duration="500">
+        app:init="expand"
+        app:duration="250"
+        app:clickToChange="true">
 
 
         <LinearLayout

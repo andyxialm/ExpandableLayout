@@ -19,7 +19,11 @@ import android.widget.LinearLayout;
  * 描述 : 可展开/关闭视图
  */
 public class ExpandableLayout extends LinearLayout {
-    private static final int DEFAULT_DURATION = 300;
+
+    private static final int DEFAULT_DURATION   = 300;
+    private static final int TYPE_INIT_EXPAND   = 1;
+    private static final int TYPE_INIT_COLLAPSE = 2;
+
     private int mDuration;
     private int mWidth;
     private int mHeight;
@@ -56,7 +60,7 @@ public class ExpandableLayout extends LinearLayout {
             TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.ExpandableLayout);
             mDuration = ta.getInt(R.styleable.ExpandableLayout_duration, DEFAULT_DURATION);
             mIsClickToChange = ta.getBoolean(R.styleable.ExpandableLayout_clickToChange, false);
-            mIsExpand = ta.getInteger(R.styleable.ExpandableLayout_init, 2) == 1;
+            mIsExpand = ta.getInteger(R.styleable.ExpandableLayout_init, TYPE_INIT_COLLAPSE) == TYPE_INIT_EXPAND;
             ta.recycle();
         }
 
@@ -73,11 +77,7 @@ public class ExpandableLayout extends LinearLayout {
             return;
         }
         executeExpand(this);
-
-        if (mSwitcher != null) {
-            Animation roateAnimation = createRotateAnimation(mSwitcher, mDuration);
-            mSwitcher.startAnimation(roateAnimation);
-        }
+        startSwitcherAnimation();
     }
 
     public void collapse() {
@@ -85,11 +85,7 @@ public class ExpandableLayout extends LinearLayout {
             return;
         }
         executeCollapse(this);
-
-        if (mSwitcher != null) {
-            Animation roateAnimation = createRotateAnimation(mSwitcher, mDuration);
-            mSwitcher.startAnimation(roateAnimation);
-        }
+        startSwitcherAnimation();
     }
 
     public void change() {
@@ -97,6 +93,13 @@ public class ExpandableLayout extends LinearLayout {
             collapse();
         } else {
             expand();
+        }
+    }
+
+    private void startSwitcherAnimation() {
+        if (mSwitcher != null) {
+            Animation roateAnimation = createRotateAnimation(mSwitcher, mDuration);
+            mSwitcher.startAnimation(roateAnimation);
         }
     }
 
