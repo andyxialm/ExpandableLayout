@@ -9,6 +9,7 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
+import android.view.animation.Interpolator;
 import android.view.animation.RotateAnimation;
 import android.widget.LinearLayout;
 
@@ -24,17 +25,21 @@ public class ExpandableLayout extends LinearLayout {
     private static final int TYPE_INIT_EXPAND   = 1;
     private static final int TYPE_INIT_COLLAPSE = 2;
 
-    private int mDuration;
     private int mWidth;
     private int mHeight;
+    private int mDuration;
+    private int mExpandDuration;
+    private int mCollapseDuration;
 
     private boolean mIsInited;
     private boolean mIsExpand;
     private boolean mIsExecuting;
-    private boolean mIsClickToChange;
+    private boolean mIsClickToToggle;
 
     private View mSwitcher;
-    private OnChangeListener mListener;
+    private OnStateChangedListener mListener;
+    private Interpolator mExpandInterpolator;
+    private Interpolator mCollapseInterpolator;
 
     public ExpandableLayout(Context context) {
         this(context, null);
@@ -59,15 +64,16 @@ public class ExpandableLayout extends LinearLayout {
         if (attrs != null) {
             TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.ExpandableLayout);
             mDuration = ta.getInt(R.styleable.ExpandableLayout_duration, DEFAULT_DURATION);
-            mIsClickToChange = ta.getBoolean(R.styleable.ExpandableLayout_clickToChange, false);
-            mIsExpand = ta.getInteger(R.styleable.ExpandableLayout_init, TYPE_INIT_COLLAPSE) == TYPE_INIT_EXPAND;
+            mIsClickToToggle = ta.getBoolean(R.styleable.ExpandableLayout_clickToToggle, false);
+            mIsExpand = ta.getInteger(R.styleable.ExpandableLayout_initialState, TYPE_INIT_COLLAPSE) == TYPE_INIT_EXPAND;
             ta.recycle();
         }
 
-        setOnClickListener(mIsClickToChange ? new OnClickListener() {
+        initValues();
+        setOnClickListener(mIsClickToToggle ? new OnClickListener() {
             @Override
             public void onClick(View v) {
-                change();
+                toggle();
             }
         } : null);
     }
@@ -88,7 +94,7 @@ public class ExpandableLayout extends LinearLayout {
         startSwitcherAnimation();
     }
 
-    public void change() {
+    public void toggle() {
         if (mIsExpand) {
             collapse();
         } else {
@@ -96,23 +102,26 @@ public class ExpandableLayout extends LinearLayout {
         }
     }
 
-    private void startSwitcherAnimation() {
-        if (mSwitcher != null) {
-            Animation roateAnimation = createRotateAnimation(mSwitcher, mDuration);
-            mSwitcher.startAnimation(roateAnimation);
-        }
+    public void setClickToToggle(boolean isClickToToggle) {
+        mIsClickToToggle = isClickToToggle;
     }
 
-    public void setClickToChange(boolean isClickToChange) {
-        mIsClickToChange = isClickToChange;
-    }
-
-    public void setOnChangeListener(OnChangeListener l) {
+    public void setOnStateChangedListener(OnStateChangedListener l) {
         mListener = l;
     }
 
     public void setDuration(int duration) {
         mDuration = duration;
+        this.setExpandDuration(duration);
+        this.setCollapseDuration(duration);
+    }
+
+    public void setExpandDuration(int expandDuration) {
+        mExpandDuration = expandDuration;
+    }
+
+    public void setCollapseDuration(int collapseDuration) {
+        mCollapseDuration = collapseDuration;
     }
 
     public void setExpand(boolean isExpand) {
@@ -122,6 +131,19 @@ public class ExpandableLayout extends LinearLayout {
 
     public void setSwitcher(View switcher) {
         mSwitcher = switcher;
+    }
+
+    public void setInterpolator(Interpolator interpolator) {
+        this.setExpandInterpolator(interpolator);
+        this.setCollapseInterpolator(interpolator);
+    }
+    
+    public void setExpandInterpolator(Interpolator expandInterpolator) {
+        mExpandInterpolator = expandInterpolator;
+    }
+    
+    public void setCollapseInterpolator(Interpolator collapseInterpolator) {
+        mCollapseInterpolator = collapseInterpolator;
     }
 
     @Override
@@ -143,6 +165,19 @@ public class ExpandableLayout extends LinearLayout {
         if (!mIsInited) {
             setVisibility(mIsExpand ? VISIBLE : GONE);
             mIsInited = true;
+        }
+    }
+
+    private void initValues() {
+        mExpandDuration = (mDuration == 0 ? DEFAULT_DURATION : mDuration);
+        mCollapseDuration = (mDuration == 0 ? DEFAULT_DURATION : mDuration);
+    }
+
+    private void startSwitcherAnimation() {
+        if (mSwitcher != null) {
+            int duration = (mDuration == 0 ? DEFAULT_DURATION : (mIsExpand ? mExpandDuration : mCollapseDuration));
+            Animation roateAnimation = createRotateAnimation(mSwitcher, duration);
+            mSwitcher.startAnimation(roateAnimation);
         }
     }
 
@@ -202,7 +237,9 @@ public class ExpandableLayout extends LinearLayout {
     }
 
     private ValueAnimator createAnimator(final View view, int startPos, int endPos) {
-        return this.createAnimator(view, startPos, endPos, mDuration == 0 ? DEFAULT_DURATION : mDuration);
+        boolean isExpand = startPos < endPos;
+        int duration = (mDuration == 0 ? DEFAULT_DURATION : (isExpand ? mExpandDuration : mCollapseDuration));
+        return this.createAnimator(view, startPos, endPos, duration);
     }
 
     private ValueAnimator createAnimator(final View view, int startPos, int endPos, int duration) {
@@ -235,6 +272,7 @@ public class ExpandableLayout extends LinearLayout {
         setVisibility(View.VISIBLE);
         int newPos = (getOrientation() == HORIZONTAL ? mWidth : mHeight);
         Animator animator = createAnimator(view, 0, newPos);
+        animator.setInterpolator(mExpandInterpolator);
         animator.addListener(new Animator.AnimatorListener() {
             @Override
             public void onAnimationStart(Animator animation) {
@@ -269,6 +307,7 @@ public class ExpandableLayout extends LinearLayout {
         mIsExpand = !mIsExpand;
         int newPos = (getOrientation() == HORIZONTAL ? mWidth : mHeight);
         ValueAnimator animator = createAnimator(view, newPos, 0);
+        animator.setInterpolator(mCollapseInterpolator);
         animator.addListener(new Animator.AnimatorListener() {
             @Override
             public void onAnimationStart(Animator animation) {
@@ -300,7 +339,7 @@ public class ExpandableLayout extends LinearLayout {
         animator.start();
     }
 
-    public interface OnChangeListener {
+    public interface OnStateChangedListener {
         void onPreExpand();
         void onPreCollapse();
         void onExpanded();

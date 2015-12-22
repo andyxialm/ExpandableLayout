@@ -6,8 +6,8 @@
 |attr|format|description|
 |---|:---|:---:|
 |duration|Integer|Animation duration|
-|clickToChange|boolean|Click child view to dismiss|
-|init|enum(expand/collapse)|Show the effect for first time|
+|clickToToggle|boolean|Click child view to dismiss|
+|initialState|enum(expand/collapse)|Show the effect for first time|
 
 
 

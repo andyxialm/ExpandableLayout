@@ -66,9 +66,9 @@
         android:layout_marginRight="20dp"
         android:background="#bb3a7a"
         android:orientation="vertical"
-        app:init="expand"
-        app:duration="250"
-        app:clickToChange="true">
+        app:duration="400"
+        app:initialState="expand"
+        app:clickToToggle="true">
 
 
         <LinearLayout
@@ -160,6 +160,5 @@
         </LinearLayout>
 
     </cn.refactor.library.ExpandableLayout>
-
 
 </LinearLayout>

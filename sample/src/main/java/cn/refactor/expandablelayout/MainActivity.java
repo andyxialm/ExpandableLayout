@@ -4,6 +4,8 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.BounceInterpolator;
 
 import cn.refactor.library.ExpandableLayout;
 
@@ -25,7 +27,12 @@ public class MainActivity extends AppCompatActivity {
         View switcher = findViewById(R.id.switcher);
         mExpandableLayout = (ExpandableLayout) findViewById(R.id.expandableLayout);
         mExpandableLayout.setSwitcher(switcher);
-        mExpandableLayout.setOnChangeListener(new ExpandableLayout.OnChangeListener() {
+        mExpandableLayout.setExpandInterpolator(new BounceInterpolator());
+        mExpandableLayout.setCollapseInterpolator(new AccelerateDecelerateInterpolator());
+        mExpandableLayout.setExpandDuration(800);
+        mExpandableLayout.setCollapseDuration(400);
+
+        mExpandableLayout.setOnStateChangedListener(new ExpandableLayout.OnStateChangedListener() {
             @Override
             public void onPreExpand() {
                 Log.d("ExpandableLayout", "onPreExpand");
@@ -49,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.btnTitle).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mExpandableLayout.change();
+                mExpandableLayout.toggle();
             }
         });
 
